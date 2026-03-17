@@ -1,0 +1,53 @@
+<div style="font-family: Arial, sans-serif;">
+
+  <div id="blog-container" style="
+    height: 420px;
+    overflow-y: auto;
+    border: 1px solid #d0e4f0;
+    border-radius: 6px;
+    padding: 12px;
+    background: #f9fbfd;
+  ">
+    <p style="color:#666;">Loading blogs...</p>
+  </div>
+
+</div>
+
+<script>
+  const FEED_URL = "https://script.google.com/macros/s/AKfycbyKaPOnIamgzsSW8WAR9B4Mut9PY8tapKNgL9Kf20RLdnW5g_ipWJS5kJqhz_zYjKyq/exec";
+
+  fetch(FEED_URL)
+    .then(response => response.json())
+    .then(blogs => {
+      const container = document.getElementById("blog-container");
+
+      if (blogs.length === 0) {
+        container.innerHTML = "<p style='color:#666;'>No blogs posted yet.</p>";
+        return;
+      }
+
+      container.innerHTML = blogs.map(blog => `
+        <div style="
+          margin-bottom: 18px;
+          padding: 16px;
+          background: #ffffff;
+          border-left: 4px solid #007baa;
+          border-radius: 4px;
+          box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+        ">
+          <h3 style="margin:0 0 4px 0; color:#007baa; font-size:16px;">${blog.title}</h3>
+          <p style="margin:0 0 8px 0; color:#888; font-size:13px;">
+            <strong>${blog.author}</strong> &nbsp;|&nbsp; ${blog.date}
+          </p>
+          <p style="margin:0 0 10px 0; color:#444; font-size:14px; line-height:1.5;">
+            ${blog.description}
+          </p>
+          ${blog.link ? `<a href="${blog.link}" style="color:#007baa; font-size:13px; text-decoration:none; font-weight:bold;">Read More →</a>` : ""}
+        </div>
+      `).join("");
+    })
+    .catch(() => {
+      document.getElementById("blog-container").innerHTML =
+        "<p style='color:#c00;'>Unable to load blogs. Please try again later.</p>";
+    });
+</script>
