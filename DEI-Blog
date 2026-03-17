@@ -1,53 +1,103 @@
-<div style="font-family: Arial, sans-serif;">
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DEI Blogs</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
 
-  <div id="blog-container" style="
-    height: 420px;
-    overflow-y: auto;
-    border: 1px solid #d0e4f0;
-    border-radius: 6px;
-    padding: 12px;
-    background: #f9fbfd;
-  ">
-    <p style="color:#666;">Loading blogs...</p>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f9fbfd;
+      padding: 12px;
+    }
+
+    .blog-card {
+      background: #ffffff;
+      border-left: 4px solid #007baa;
+      border-radius: 4px;
+      padding: 16px;
+      margin-bottom: 16px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+    }
+
+    .blog-title {
+      color: #007baa;
+      font-size: 16px;
+      margin-bottom: 4px;
+    }
+
+    .blog-meta {
+      color: #888;
+      font-size: 13px;
+      margin-bottom: 8px;
+    }
+
+    .blog-description {
+      color: #444;
+      font-size: 14px;
+      line-height: 1.5;
+      margin-bottom: 10px;
+    }
+
+    .blog-link {
+      color: #007baa;
+      font-size: 13px;
+      text-decoration: none;
+      font-weight: bold;
+    }
+
+    .blog-link:hover { text-decoration: underline; }
+
+    .status-msg {
+      color: #666;
+      font-size: 14px;
+      padding: 12px;
+    }
+
+    .error-msg {
+      color: #c00;
+      font-size: 14px;
+      padding: 12px;
+    }
+  </style>
+</head>
+<body>
+
+  <div id="blog-container">
+    <p class="status-msg">Loading blogs...</p>
   </div>
 
-</div>
+  <script>
+    const FEED_URL = "https://script.google.com/macros/s/AKfycbyKaPOnIamgzsSW8WAR9B4Mut9PY8tapKNgL9Kf20RLdnW5g_ipWJS5kJqhz_zYjKyq/exec";
 
-<script>
-  const FEED_URL = "https://script.google.com/macros/s/AKfycbyKaPOnIamgzsSW8WAR9B4Mut9PY8tapKNgL9Kf20RLdnW5g_ipWJS5kJqhz_zYjKyq/exec";
+    fetch(FEED_URL)
+      .then(response => response.json())
+      .then(blogs => {
+        const container = document.getElementById("blog-container");
 
-  fetch(FEED_URL)
-    .then(response => response.json())
-    .then(blogs => {
-      const container = document.getElementById("blog-container");
+        if (blogs.length === 0) {
+          container.innerHTML = "<p class='status-msg'>No blogs posted yet.</p>";
+          return;
+        }
 
-      if (blogs.length === 0) {
-        container.innerHTML = "<p style='color:#666;'>No blogs posted yet.</p>";
-        return;
-      }
+        container.innerHTML = blogs.map(blog => `
+          <div class="blog-card">
+            <h3 class="blog-title">${blog.title}</h3>
+            <p class="blog-meta">
+              <strong>${blog.author}</strong> &nbsp;|&nbsp; ${blog.date}
+            </p>
+            <p class="blog-description">${blog.description}</p>
+            ${blog.link ? `<a class="blog-link" href="${blog.link}" target="_blank">Read More →</a>` : ""}
+          </div>
+        `).join("");
+      })
+      .catch(() => {
+        document.getElementById("blog-container").innerHTML =
+          "<p class='error-msg'>Unable to load blogs. Please try again later.</p>";
+      });
+  </script>
 
-      container.innerHTML = blogs.map(blog => `
-        <div style="
-          margin-bottom: 18px;
-          padding: 16px;
-          background: #ffffff;
-          border-left: 4px solid #007baa;
-          border-radius: 4px;
-          box-shadow: 0 1px 3px rgba(0,0,0,0.06);
-        ">
-          <h3 style="margin:0 0 4px 0; color:#007baa; font-size:16px;">${blog.title}</h3>
-          <p style="margin:0 0 8px 0; color:#888; font-size:13px;">
-            <strong>${blog.author}</strong> &nbsp;|&nbsp; ${blog.date}
-          </p>
-          <p style="margin:0 0 10px 0; color:#444; font-size:14px; line-height:1.5;">
-            ${blog.description}
-          </p>
-          ${blog.link ? `<a href="${blog.link}" style="color:#007baa; font-size:13px; text-decoration:none; font-weight:bold;">Read More →</a>` : ""}
-        </div>
-      `).join("");
-    })
-    .catch(() => {
-      document.getElementById("blog-container").innerHTML =
-        "<p style='color:#c00;'>Unable to load blogs. Please try again later.</p>";
-    });
-</script>
+</body>
+</html>
